@@ -1,0 +1,56 @@
+import processing.serial.*;
+Serial mySerial;
+PrintWriter output;
+void setup() {
+ mySerial = new Serial( this, "COM3", 9600 );//choose the USB port for serial imput
+ output = createWriter( "data.txt" );//creates a text file in the same 
+directory of the Sketch
+ size(600, 400); // set the window size:
+ background(255);// set initial background
+ strokeWeight(2); // Default
+ line(40, 360, 580, 360);//x axis
+ line(40, 40, 40, 360);//y axis
+ line(40, 360, 40, 365);//x line lower limit 
+ line(580, 360, 580, 365);//x line upper limit
+ line(302, 360, 302, 365);//0 line 
+ textSize(15);
+ fill(0, 102, 153);
+ text("Voltage (V)", 285,390);//X axis label
+ fill(0, 102, 153);
+ text("-1.2", 30, 380);
+ fill(0, 102, 153);
+ text("0", 300, 380);
+ fill(0, 102, 153);
+ text("1.2", 575, 380);
+ fill(0, 102, 153);
+ rotate(-PI/2);
+ text("Current", -235, 30); // y axis label
+ 
+}
+//function that reads the serial values as strings and converts them in numbers then it plots them and prints them on text file
+void draw() {
+ if (mySerial.available() > 0 ) {
+ String value = mySerial.readStringUntil('\n');
+ if ( value != null ) {
+ println(value);
+ int p1 = value.indexOf(" ");
+ int l=p1-1;
+ String ss = value.substring(0, l+1);
+ String ss1 = value.substring(p1);
+ float voltage = float(ss);// convert to a number.
+ float current = float(ss1);// convert to a number.
+ println(voltage + " " + current);
+ output.println(voltage + " " + current);
+ float volt = map(voltage, -1.2, 1.2, 40, 580);//map to the screen width
+ float curr = map(current, -1, 1, 360, 40); //map to the screen height
+ ellipse(volt, curr, 3, 3);
+ }
+ }
+}
+//funtion to close the plot and save the file when any key of the keyboard is pressed
+void keyPressed() {
+18
+ output.flush(); // Writes the remaining data to the file
+ output.close(); // Finishes the file
+ exit(); // Stops the program
+}
